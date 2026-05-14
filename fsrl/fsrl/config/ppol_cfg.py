@@ -73,6 +73,7 @@ class TrainCfg:
     safe_metadrive_sweep: bool = False  # ⭐ 关闭多场景扫描，只训练单一场景
     # safe_metadrive_sweep: bool = True  # ⭐ 关闭多场景扫描，只训练单一场景
     safe_metadrive_scene: str = "mixed_default"  # ⭐ 指定训练场景为混合场景
+    traffic_density: Optional[float] = None  # None 表示使用 safe_metadrive_adapter/config.py 中的默认车辆密度
     # logger params
     logdir: str = "logs"
     project: str = "metadrive-Reward"

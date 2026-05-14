@@ -223,6 +223,7 @@ def train(args: TrainCfg):
             "use_lagrangian",
             "use_risk_field_cost",
             "risk_field_cost_scale",
+            "traffic_density",
             "safe_metadrive_sweep",
             "safe_metadrive_scene",
             "resact_enabled",
@@ -233,13 +234,15 @@ def train(args: TrainCfg):
         args.name = auto_name(default_cfg, cfg, args.prefix, args.suffix, skip_keys=skip_keys)
 
     args.safe_metadrive_scene = normalize_safe_metadrive_scene(args.safe_metadrive_scene)
+    args.traffic_density = sacl_base.effective_traffic_density(args)
     args.project = SAFE_METADRIVE_PROJECT
     args.group = safe_metadrive_group(args.safe_metadrive_scene)
-    args.name = append_scene_tag_to_run_name(args.name, args.safe_metadrive_scene)
+    args.name = append_scene_tag_to_run_name(args.name, args.safe_metadrive_scene, args.traffic_density)
     cfg["project"] = args.project
     cfg["group"] = args.group
     cfg["safe_metadrive_scene"] = args.safe_metadrive_scene
     cfg["safe_metadrive_sweep"] = bool(args.safe_metadrive_sweep)
+    cfg["traffic_density"] = args.traffic_density
 
     if args.logdir is not None:
         path_parts = [args.logdir, args.project]

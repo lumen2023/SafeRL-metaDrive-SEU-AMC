@@ -36,13 +36,27 @@ def safe_metadrive_group(scene: str) -> Optional[str]:
     return scene
 
 
-def append_scene_tag_to_run_name(name: str, scene: str) -> str:
+def traffic_density_tag(traffic_density: Optional[float]) -> Optional[str]:
+    if traffic_density is None:
+        return None
+    value = float(traffic_density)
+    density = str(int(value)) if value.is_integer() else f"{value:g}"
+    return "density{}".format(density)
+
+
+def append_scene_tag_to_run_name(name: str, scene: str, traffic_density: Optional[float] = None) -> str:
+    name = str(name)
+    tags = []
     scene_tag = safe_metadrive_group(scene)
-    if not scene_tag:
-        return str(name)
-    if scene_tag in str(name):
-        return str(name)
-    return "{}_{}".format(name, scene_tag)
+    if scene_tag:
+        tags.append(scene_tag)
+    density_tag = traffic_density_tag(traffic_density)
+    if density_tag:
+        tags.append(density_tag)
+    for tag in tags:
+        if tag not in name:
+            name = "{}_{}".format(name, tag)
+    return name
 
 
 def _normalize_option_names(option_names: Iterable[str]) -> List[str]:

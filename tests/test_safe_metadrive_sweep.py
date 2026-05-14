@@ -8,6 +8,7 @@ from safe_metadrive_sweep import (
     normalize_safe_metadrive_scene,
     safe_metadrive_group,
     strip_cli_options,
+    traffic_density_tag,
 )
 
 
@@ -23,9 +24,9 @@ def test_safe_metadrive_scene_sequence_is_fixed():
 
 
 def test_safe_metadrive_project_and_group_naming():
-    assert SAFE_METADRIVE_PROJECT == "metadrive-fast-rl"
-    assert safe_metadrive_group(MIXED_DEFAULT_SCENE) == "scene-mixed_default"
-    assert safe_metadrive_group("ramp_merge") == "scene-ramp_merge"
+    assert SAFE_METADRIVE_PROJECT == "metadrive-rl"
+    assert safe_metadrive_group(MIXED_DEFAULT_SCENE) is None
+    assert safe_metadrive_group("ramp_merge") == "ramp_merge"
 
 
 def test_normalize_safe_metadrive_scene_rejects_unknown_values():
@@ -79,6 +80,12 @@ def test_build_safe_metadrive_child_command_forces_single_scene_run():
 
 
 def test_append_scene_tag_to_run_name_is_idempotent():
-    tagged = append_scene_tag_to_run_name("PPOL-demo", "straight_4lane")
-    assert tagged == "PPOL-demo_scene-straight_4lane"
-    assert append_scene_tag_to_run_name(tagged, "straight_4lane") == tagged
+    tagged = append_scene_tag_to_run_name("PPOL-demo", "straight_4lane", 0.15)
+    assert tagged == "PPOL-demo_straight_4lane_density0.15"
+    assert append_scene_tag_to_run_name(tagged, "straight_4lane", 0.15) == tagged
+
+
+def test_append_density_tag_to_mixed_default_run_name():
+    assert append_scene_tag_to_run_name("SACL-demo", MIXED_DEFAULT_SCENE, 0.15) == "SACL-demo_density0.15"
+    assert traffic_density_tag(1.0) == "density1"
+    assert traffic_density_tag(None) is None

@@ -11,7 +11,7 @@ from .risk_field import RiskFieldCalculator
 DEFAULT_CONFIG: Dict[str, Any] = {
     # Environment difficulty.
     "accident_prob": 0.0,
-    "traffic_density": 0.1,
+    "traffic_density": 0.2,
     "remove_crashed_traffic_vehicle": False,
     # Termination switches.
     "crash_vehicle_done": False,

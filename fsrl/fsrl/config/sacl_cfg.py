@@ -9,7 +9,7 @@ class TrainCfg:
     cost_limit: float = 1
     # device: str = "cpu"
     device: str = "cuda"
-    thread: int = 8
+    thread: int = 12
     seed: int = 10
     # SAC arguments
     actor_lr: float = 5e-4
@@ -46,7 +46,7 @@ class TrainCfg:
     batch_size: int = 256
     reward_threshold: float = 10000
     save_interval: int = 4
-    test_every_episode: int = 2000
+    test_every_episode: int = 200
     save_test_artifacts: bool = True
     resume: bool = False
     save_ckpt: bool = True
@@ -63,6 +63,7 @@ class TrainCfg:
     safe_metadrive_sweep: bool = False  # ⭐ 关闭多场景扫描，只训练单一场景
     # safe_metadrive_sweep: bool = True  # ⭐ 开启多场景扫描，训练多场景
     safe_metadrive_scene: str = "mixed_default"  # ⭐ 指定训练场景为混合场景
+    traffic_density: Optional[float] = None  # None 表示使用 safe_metadrive_adapter/config.py 中的默认车辆密度
     # logger params
     logdir: str = "logs"
     project: str = "metadrive-Reward-step2"

@@ -163,6 +163,13 @@ def effective_risk_field_reward_scale(args):
     return float(value)
 
 
+def effective_traffic_density(args):
+    value = getattr(args, "traffic_density", None)
+    if value is None:
+        return float(DEFAULT_CONFIG.get("traffic_density", 0.0))
+    return float(value)
+
+
 def resolve_experiment_prefix(args):
     """Return table-aligned SAC/SACL experiment labels."""
     risk_enabled = effective_risk_field_enabled(args)
@@ -184,6 +191,8 @@ def build_safe_metadrive_config(base_config, args, *, artifact=False):
         config["use_risk_field_reward"] = bool(args.use_risk_field_reward)
     if getattr(args, "risk_field_reward_scale", None) is not None:
         config["risk_field_reward_scale"] = float(args.risk_field_reward_scale)
+    if getattr(args, "traffic_density", None) is not None:
+        config["traffic_density"] = float(args.traffic_density)
     for key in (
         "resact_enabled",
         "resact_steer_delta_scale",
@@ -288,19 +297,22 @@ def train(args: TrainCfg):
             "use_lagrangian",
             "use_risk_field_cost",
             "risk_field_cost_scale",
+            "traffic_density",
             "safe_metadrive_sweep",
             "safe_metadrive_scene",
         ]
         args.name = auto_name(default_cfg, cfg, args.prefix, args.suffix, skip_keys=skip_keys)
     if args.task == "SafeMetaDrive":
         args.safe_metadrive_scene = normalize_safe_metadrive_scene(args.safe_metadrive_scene)
+        args.traffic_density = effective_traffic_density(args)
         args.project = SAFE_METADRIVE_PROJECT
         args.group = safe_metadrive_group(args.safe_metadrive_scene)
-        args.name = append_scene_tag_to_run_name(args.name, args.safe_metadrive_scene)
+        args.name = append_scene_tag_to_run_name(args.name, args.safe_metadrive_scene, args.traffic_density)
         cfg["project"] = args.project
         cfg["group"] = args.group
         cfg["safe_metadrive_scene"] = args.safe_metadrive_scene
         cfg["safe_metadrive_sweep"] = bool(args.safe_metadrive_sweep)
+        cfg["traffic_density"] = args.traffic_density
 
     # 设置实验分组（任务名称 + 成本限制）
     if args.task != "SafeMetaDrive" and args.group is None:

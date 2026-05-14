@@ -24,6 +24,7 @@ env.py               旧环境入口兼容层
 risk_field.py        旧风险场入口兼容层
 resact_metadrive.py  旧 ResAct 入口兼容层
 train_sacl.py        SAC-Lag 训练入口
+train_sac_suite.py   SAC / SACL / SAC-RA / SACL-RA 顺序训练入口
 train_ppol.py        PPO-Lag 训练入口
 eval.py              模型评估入口
 debug_*.py           风险场和路线可视化调试脚本
@@ -122,12 +123,61 @@ python train_ppol.py --task SafeMetaDrive
 python eval.py
 ```
 
+顺序训练 SAC 系列算法：
+
+```bash
+python train_sac_suite.py
+```
+
+该入口会按固定顺序启动四个独立子进程：
+
+```text
+sac -> sacl -> sac_ra -> sacl_ra
+```
+
+等价子命令分别为：
+
+```bash
+python train_sacl.py --task SafeMetaDrive --use_lagrangian False
+python train_sacl.py --task SafeMetaDrive --use_lagrangian True
+python train_sacl_resact.py --task SafeMetaDrive --use_lagrangian False
+python train_sacl_resact.py --task SafeMetaDrive --use_lagrangian True
+```
+
+临时检查命令而不启动训练：
+
+```bash
+python train_sac_suite.py --dry-run
+```
+
+只训练部分算法：
+
+```bash
+python train_sac_suite.py --algorithms sac,sacl_ra
+```
+
+覆盖所有子训练的周车密度：
+
+```bash
+python train_sac_suite.py --traffic-density 0.2
+python train_sac_suite.py --traffic_density 0.2
+```
+
+SafeMetaDrive 训练会把场景名和车辆密度写入 wandb run name。默认混合场景只追加密度，例如 `SACL-demo_density0.2`；单场景训练会追加场景和密度，例如 `SACL-demo_roundabout_density0.2`。
+
 评估脚本默认读取 `eval.py` 顶部的 `EVAL_CONFIG`。如果 GitHub 克隆环境里没有模型权重，请先训练得到 checkpoint，或者把 `EVAL_CONFIG["model_path"]` 改成你本机已有的模型路径。
 
 保存风险场快照：
 
 ```bash
 python debug_risk_field_snapshot.py --warmup-steps 40 --traffic-density 0.1 --accident-prob 1.0
+```
+
+验证训练套件和 SafeMetaDrive 命名逻辑：
+
+```bash
+python -m py_compile train_sac_suite.py tests/test_train_sac_suite.py
+pytest -q tests/test_train_sac_suite.py tests/test_safe_metadrive_sweep.py
 ```
 
 ## 新接口示例
@@ -184,6 +234,10 @@ ResAct 相关：
 - `resact_steer_delta_scale`：单步转向残差尺度。
 - `resact_throttle_delta_scale`：单步油门/刹车残差尺度。
 - `resact_initial_action`：初始动作。
+
+交通流相关：
+
+- `traffic_density`：周车密度。默认值在 `safe_metadrive_adapter/config.py` 中维护，训练脚本可通过 `--traffic_density` 覆盖，`train_sac_suite.py` 同时支持 `--traffic-density` 和 `--traffic_density`。
 
 ## GitHub 上传前检查
 
