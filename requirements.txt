@@ -1,0 +1,26 @@
+# Local editable packages.
+-e ./metadrive
+-e ./fsrl
+
+# Core runtime.
+numpy
+gymnasium
+torch
+tianshou
+pyrallis
+PyYAML
+tqdm
+imageio
+imageio-ffmpeg
+pygame
+Pillow
+matplotlib
+opencv-python
+shapely
+pandas
+wandb
+tensorboard
+
+# Optional for non-MetaDrive tasks:
+# bullet_safety_gym
+# safety-gymnasium
